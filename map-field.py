@@ -33,8 +33,6 @@ def mapSurface(length, width, L_ratio, W_ratio, overlap):
 
     num_rows = math.ceil(length/useful_length_photo)
     num_columns = math.ceil(width/useful_width_photo)
-    print("Number of columns: " + num_columns)
-    print("Number of rows: " + num_rows)
 
     #Move to initial position
     me.move_left(int(width_photo/2))
@@ -56,7 +54,32 @@ def mapSurface(length, width, L_ratio, W_ratio, overlap):
         column = column + 1
 
     me.land()
+
+def rotate_panoramic_photo(total_degrees, interval):
+
+    images = []
+
+    me.takeoff()
+    me.set_video_direction(me.CAMERA_FORWARD)
+
+    value_deg = 0
+    while value_deg < total_degrees:
+        filename = f'image_{value_deg}.jpg'
+        image = me.get_frame_read().frame
+        cv2.imwrite(filename, image)
+        images.append(image)
+        me.rotate_clockwise(interval)
+        value_deg = value_deg + interval
+        time.sleep(1)
+
+    stitcher = cv2.Stitcher_create()
+
+    result = stitcher.stitch(images) 
+
+    cv2.imwrite('./result.jpg', result[1])
+
         
-# example
-mapSurface(200,200, 1.5, 1, 0.5)
+# examples
+# mapSurface(200,200, 1.5, 1, 0.5)
+rotate_panoramic_photo(180, 20)
 
