@@ -66,20 +66,40 @@ def rotate_panoramic_photo(total_degrees, interval):
     while value_deg < total_degrees:
         filename = f'image_{value_deg}.jpg'
         image = me.get_frame_read().frame
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         cv2.imwrite(filename, image)
         images.append(image)
         me.rotate_clockwise(interval)
         value_deg = value_deg + interval
         time.sleep(1)
 
-    stitcher = cv2.Stitcher_create()
+    me.land()
 
-    result = stitcher.stitch(images) 
+def rotate_panoramic_photo2(total_degrees, interval):
 
-    cv2.imwrite('./result.jpg', result[1])
+    images = []
+
+    me.takeoff()
+
+    time.sleep(1)
+
+    value_deg = 0
+    while value_deg < total_degrees:
+        filename = f'image_{value_deg}.jpg'
+        image = me.get_frame_read().frame
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(filename, image)
+        images.append(image)
+        value_deg = value_deg + interval
+        time.sleep(1)
+
+    me.land()
 
         
+
+    me.land()
+        
 # examples
-# mapSurface(200,200, 1.5, 1, 0.5)
-rotate_panoramic_photo(180, 20)
+# mapSurface(80,80, 1.5, 1, 0.5)
+rotate_panoramic_photo2(180, 20)
 
