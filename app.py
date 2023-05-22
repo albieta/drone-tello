@@ -11,7 +11,7 @@ import time
 frames = 60
 param_names = {0: '0 - length (cm)', 1: '1 - width (cm)', 2: '2 - overlap (0-100)', 3: '3 - total_degrees', 4: '4 - interval'}
 param_colors = {0: (255, 255, 255), 1: (255, 255, 255), 2: (255, 255, 255), 3: (255, 255, 255), 4: (255, 255, 255)}
-configuration = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
+configuration = {0: 150, 1: 150, 2: 80, 3: 180, 4: 20}
 configuring = False
 configuring_param = 0
 
@@ -136,7 +136,7 @@ def mapSurface(me):
     if(length == 0 or width == 0 or L_ratio == 0 or W_ratio == 0):
         return
    
-    me.set_video_direction(me.CAMERA_FORWARD)
+    me.set_video_direction(me.CAMERA_DOWNWARD)
 
     length_photo = L_ratio*me.get_height()
     width_photo = W_ratio*me.get_height()
@@ -191,3 +191,9 @@ def rotate_panoramic_photo(me):
         me.rotate_clockwise(interval)
         value_deg = value_deg + interval
         time.sleep(1)
+
+    stitcher = cv2.Stitcher_create()
+
+    result = stitcher.stitch((tuple(images)))
+
+    cv2.imwrite('./result.jpg', result[1])

@@ -15,8 +15,11 @@ import cv2
 
 # Load images
 img1 = cv2.imread('image_0.jpg')
-img2 = cv2.imread('image_20.jpg')
+img2 = cv2.imread('image_10.jpg')
+img3 = cv2.imread('image_20.jpg')
+img4 = cv2.imread('image_30.jpg')
 img3 = cv2.imread('image_40.jpg')
+img3 = cv2.imread('image_50.jpg')
 img4 = cv2.imread('image_60.jpg')
 img5 = cv2.imread('image_80.jpg')
 img6 = cv2.imread('image_100.jpg')
