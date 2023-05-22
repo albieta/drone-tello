@@ -9,11 +9,25 @@ import cv2
 import time
 
 frames = 60
-param_names = {0: '0 - length (cm)', 1: '1 - width (cm)', 2: '2 - overlap (0-100)', 3: '3 - total_degrees', 4: '4 - interval'}
-param_colors = {0: (255, 255, 255), 1: (255, 255, 255), 2: (255, 255, 255), 3: (255, 255, 255), 4: (255, 255, 255)}
-configuration = {0: 150, 1: 150, 2: 80, 3: 180, 4: 20}
+function_names = {
+    0: '0 - Map a Surface',
+    1: '1 - Panoramic photo'}
+function_colors = {
+    0: (255, 255, 255),
+    1: (255, 255, 255)}
+param_names = {
+    0: {0: '0 - length (cm)', 1: '1 - width (cm)', 2: '2 - overlap (0-100)'}, 
+    1: {0: '0 - total_degrees', 1: '1 - interval'}}
+param_colors = {
+    0: {0: (255, 255, 255), 1: (255, 255, 255), 2: (255, 255, 255)}, 
+    1: {0: (255, 255, 255), 1: (255, 255, 255)}}
+configuration = {
+    0: {0: 150, 1: 150, 2: 80}, 
+    1: {0: 180, 1: 20}}
 configuring = False
 configuring_param = 0
+selected_function = False
+selected_function_num = 0
 
 def deg2rad(degrees):
     return (degrees*2*math.pi)/360
@@ -48,7 +62,7 @@ def draw_filled_arc(screen, color, pos, radius, start, end):
     screen.blit(image, image_rect)
 
 def draw_number_panel(screen): 
-    global configuring, configuring_param, configuration
+    global configuring, configuring_param, configuration, selected_function, selected_function_num
 
     number = 0
     position = (700,50)
@@ -63,38 +77,69 @@ def draw_number_panel(screen):
             position = (700,92)
         else: 
             position = (position[0]+42, position[1])
-        if (number < 5):
-            screen.blit(pygame.font.SysFont("Arial", 20).render(f"{param_names[number]}: ...", True, param_colors[number]), (position_text))
-            screen.blit(pygame.font.SysFont("Arial", 20).render(f"{configuration[number]}", True, param_colors[number]), (position_text[0]+200, position_text[1]))
-            position_text = (position_text[0], position_text[1]+30)
+        if (selected_function == True):
+            if number < len(param_names[selected_function_num]):
+                param_text = f"{param_names[selected_function_num][number]}: ..."
+                config_text = str(configuration[selected_function_num][number])
+                param_color = param_colors[selected_function_num][number]
+
+                screen.blit(pygame.font.SysFont("Arial", 20).render(param_text, True, param_color), position_text)
+                screen.blit(pygame.font.SysFont("Arial", 20).render(config_text, True, param_color),
+                            (position_text[0] + 200, position_text[1]))
+                position_text = (position_text[0], position_text[1] + 30)
+        else:
+            if(number < len(function_names)):
+                screen.blit(pygame.font.SysFont("Arial", 20).render(f"{function_names[number]}", True, function_colors[number]), (position_text))
+                position_text = (position_text[0], position_text[1]+30)
+
         number = number + 1
     
-    button_rect = pygame.Rect((700,150),(40, 40))
+    button_rect = pygame.Rect((700,150),(70, 40))
     pygame.draw.rect(screen, (80, 137, 12), button_rect)
-    button_rect = pygame.Rect((750,150),(60, 40))
+    screen.blit(pygame.font.SysFont("Arial", 20).render('select', True, (255, 255, 255)), (700+10, 150+5))
+    button_rect = pygame.Rect((700,200),(70, 40))
+    pygame.draw.rect(screen, (80, 137, 12), button_rect)
+    screen.blit(pygame.font.SysFont("Arial", 20).render('back', True, (255, 255, 255)), (700+10, 200+5))
+    button_rect = pygame.Rect((780,150),(40, 40))
+    pygame.draw.rect(screen, (255,0,0), button_rect)
+    button_rect = pygame.Rect((830,150),(60, 40))
     pygame.draw.rect(screen, (196, 137, 11), button_rect)
-    screen.blit(pygame.font.SysFont("Arial", 20).render('clear', True, (255, 255, 255)), (750+10, 150+5))
+    screen.blit(pygame.font.SysFont("Arial", 20).render('clear', True, (255, 255, 255)), (830+10, 150+5))
 
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = pygame.mouse.get_pos()
-            button_rect = pygame.Rect((700,150),(40, 40))
+            button_rect = pygame.Rect((700,150),(70, 40))
+            if button_rect.collidepoint(pos):
+                selected_function = True
+            button_rect = pygame.Rect((700,200),(70, 40))
+            if button_rect.collidepoint(pos):
+                selected_function = False
+            button_rect = pygame.Rect((830,150),(60, 40))
+            if button_rect.collidepoint(pos):
+                configuration[selected_function_num][configuring_param] = 0
+            button_rect = pygame.Rect((780,150),(40, 40))
             if button_rect.collidepoint(pos):
                 configuring = False
-                for i in range(10):
-                    param_colors[i] = (255, 255, 255)
-            button_rect = pygame.Rect((750,150),(40, 40))
-            if button_rect.collidepoint(pos):
-                configuration[configuring_param] = 0
+                for i in range(len(param_names[selected_function_num])):
+                    param_colors[selected_function_num][i] = (255, 255, 255)
+                for i in range(len(function_names)):
+                    function_colors[i] = (255, 255, 255)
             for i in range(10):
                 button_rect = pygame.Rect((700 + 42*(i%5), 50 + 42*(i//5)), (40, 40))
                 if button_rect.collidepoint(pos):
-                    if not configuring: 
-                        configuring_param = i
-                        configuring = True
-                        param_colors[i] = (20, 137, 160 )
-                    else:
-                        configuration[configuring_param] = int(str(configuration[configuring_param]) + str(i))
+                    if selected_function == True:
+                        if not configuring: 
+                            configuring_param = i
+                            configuring = True
+                            param_colors[selected_function_num][i] = (20, 137, 160 )
+                        else:
+                            configuration[selected_function_num][configuring_param] = int(str(configuration[selected_function_num][configuring_param]) + str(i))
+                    else: 
+                        for e in range(len(function_names)):
+                            function_colors[e] = (255, 255, 255)
+                        function_colors[i] = (20, 137, 160 )
+                        selected_function_num = i
 
 def run(draw):
     global frames
@@ -127,11 +172,11 @@ def mapSurface(me):
 
     global configuration
 
-    length = configuration[0] 
-    width = configuration[1]
+    length = configuration[0][0] 
+    width = configuration[0][1]
     L_ratio = 1.5
     W_ratio = 1
-    overlap = configuration[2]/100
+    overlap = configuration[0][2]/100
 
     if(length == 0 or width == 0 or L_ratio == 0 or W_ratio == 0):
         return
@@ -171,8 +216,8 @@ def rotate_panoramic_photo(me):
 
     global configuration
 
-    total_degrees = configuration[3] 
-    interval = configuration[4]
+    total_degrees = configuration[1][0] 
+    interval = configuration[1][1]
 
     if(total_degrees == 0 or interval == 0):
         return
