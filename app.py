@@ -11,19 +11,24 @@ import time
 frames = 60
 function_names = {
     0: '0 - Map a Surface',
-    1: '1 - Panoramic photo'}
+    1: '1 - Panoramic photo',
+    2: '2 - Hallway photo'}
 function_colors = {
     0: (255, 255, 255),
-    1: (255, 255, 255)}
+    1: (255, 255, 255),
+    2: (255, 255, 255)}
 param_names = {
     0: {0: '0 - length (cm)', 1: '1 - width (cm)', 2: '2 - overlap (0-100)'}, 
-    1: {0: '0 - total_degrees', 1: '1 - interval'}}
+    1: {0: '0 - total_degrees', 1: '1 - interval'},
+    2: {0: '0 - length (cm)'}}
 param_colors = {
     0: {0: (255, 255, 255), 1: (255, 255, 255), 2: (255, 255, 255)}, 
-    1: {0: (255, 255, 255), 1: (255, 255, 255)}}
+    1: {0: (255, 255, 255), 1: (255, 255, 255)},
+    2: {0: (255, 255, 255)}}
 configuration = {
     0: {0: 150, 1: 150, 2: 80}, 
-    1: {0: 180, 1: 20}}
+    1: {0: 180, 1: 20},
+    2: {0: 200}}
 configuring = False
 configuring_param = 0
 selected_function = False
@@ -235,6 +240,33 @@ def rotate_panoramic_photo(me):
         images.append(image)
         me.rotate_clockwise(interval)
         value_deg = value_deg + interval
+        time.sleep(1)
+
+    stitcher = cv2.Stitcher_create()
+
+    result = stitcher.stitch((tuple(images)))
+
+    cv2.imwrite('./result.jpg', result[1])
+
+def hallway_panoramic_photo(me):
+
+    global configuration
+
+    length = configuration[2][0]
+
+    images = []
+
+    me.set_video_direction(me.CAMERA_FORWARD)
+
+    interval = 0
+    while interval < length:
+        filename = f'image_{interval}.jpg'
+        image = me.get_frame_read().frame
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(filename, image)
+        images.append(image)
+        me.send_rc_control(30,0,0,0)
+        interval = interval + 50
         time.sleep(1)
 
     stitcher = cv2.Stitcher_create()

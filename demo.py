@@ -115,8 +115,10 @@ def draw():
     if app.getKey("f"):
         app.mapSurface(me)
 
-
     if app.getKey("h"):
+        app.hallway_panoramic_photo(me)
+
+    if app.getKey("c"):
         if frontCamera:
             frontCamera = False
             me.set_video_direction(me.CAMERA_DOWNWARD)
