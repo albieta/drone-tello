@@ -28,7 +28,7 @@ param_colors = {
 configuration = {
     0: {0: 150, 1: 150, 2: 80}, 
     1: {0: 180, 1: 20},
-    2: {0: 200}}
+    2: {0: 500}}
 configuring = False
 configuring_param = 0
 selected_function = False
@@ -262,9 +262,11 @@ def hallway_panoramic_photo(me):
     while interval < length:
         filename = f'image_{interval}.jpg'
         image = me.get_frame_read().frame
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(filename, image)
-        images.append(image)
+        if image is not None:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(filename, image)
+            images.append(image)
+
         me.send_rc_control(30,0,0,0)
         interval = interval + 50
         time.sleep(1)
